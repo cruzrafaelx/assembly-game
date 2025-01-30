@@ -92,7 +92,12 @@ section.language-list{
   font-size: 1.5rem;
   font-weight: 500;
   margin: 0 0.3rem;
+  color: #323232;
   background-color: #323232;
+}
+
+.currentWord > span.visible{
+  color: #FFFFFF;
 }
 
 .alphabet{

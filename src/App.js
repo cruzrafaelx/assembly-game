@@ -20,8 +20,13 @@ function App() {
   )
   
   const wordLetters = currentWord.split("").map((letter, index) => {
-    const upperCase = letter.toUpperCase()
-    return <span key={index}>{upperCase}</span>
+
+    const visibleLetter = Object.entries(correctLetter).some(([l, isCorrect])=>
+      letter.toLowerCase() == l && isCorrect === true
+    ) 
+    
+    return <span className={visibleLetter ? "visible" : undefined}       
+          key={index}>{letter.toUpperCase()}</span>
   })
 
   const alphabetList = alphabet.split("").map(letter => (
@@ -55,7 +60,6 @@ function App() {
   //This function checks if the clicked letter is included in the current word, it consequently changes the isCorrect state as well. 
   function checkLetter(letter){
     const result = currentWord.toLowerCase().split("").includes(letter)
-    console.log("checking letter:", letter, "Result:", result)
 
     setCorrectLetter(prevCorrectLetter => {
 
@@ -70,8 +74,6 @@ function App() {
     })
   }
   
-  console.log("Chosen letter: ", chosenLetter)
-  console.log("Correct letter: ", correctLetter)
   
 
   return (

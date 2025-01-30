@@ -113,6 +113,7 @@ section.language-list{
   font-weight: 600;
   color: #1E1E1E;
   background-color: #FCBA29;
+  cursor: pointer;
 }
 
 .new-game{
@@ -123,4 +124,12 @@ section.language-list{
   border-radius: 5px;
   border: none;
   font-size: 1.3rem;
+}
+
+.alphabet > .correct-letter{
+  background-color: #10A95B;
+}
+
+.alphabet > .wrong-letter{
+  background-color: #EC5D49;
 }

@@ -13,14 +13,14 @@ function App() {
  
   //Derived Values
   const wrongGuessCount = chosenLetter.filter(l => 
-  !currentWord.includes(l.toLowerCase())).length
-  
+    !currentWord.includes(l.toLowerCase())).length
   const isGameWon = currentWord.split("").every(letter => chosenLetter.includes(letter))
   const isGameLost = wrongGuessCount === languages.length
   const isGameOver = isGameWon || isGameLost
   const previousLetter = currentWord.includes(chosenLetter[chosenLetter.length-1])
+  const numGuessesLeft = languages.length - wrongGuessCount
   
-
+  console.log(numGuessesLeft)
   //Static Values
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
@@ -56,7 +56,8 @@ function App() {
   const alphabetList = alphabet.split("").map(letter => (
     <button 
       onClick={()=> {handleChosenLetter(letter); checkLetter(letter)}}
-
+      aria-disabled={chosenLetter.includes(letter)}
+      aria-label={`Letter ${letter}`}
       //clsx dynamically setting the class depending whether letter is wrong or right.
       className={clsx(
         'btn',
@@ -134,7 +135,10 @@ function App() {
         <p>Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
       </header>
 
-      <section className={clsx(
+      <section 
+        aria-live="polite" 
+        role="status" 
+        className={clsx(
         "game-status",
         isGameWon && "game-won",
         isGameLost && "game-lost"
@@ -147,7 +151,23 @@ function App() {
       </section>
 
       <section className='currentWord'>
-        {lettersList}
+        {lettersList} 
+      </section>
+
+      <section className='sr-only'
+               aria-live='polie'
+               role='status'>
+               <p>
+                {currentWord.includes(previousLetter) ? 
+                 `Correct! The ${previousLetter} is in the word` :
+                 `Wrong! The ${previousLetter} is not in the word`}
+                You have {numGuessesLeft} remaining guesses.
+               </p>
+               
+               <p>
+                Current word: {currentWord.split("").map(letter => 
+                chosenLetter.includes(letter) ? letter + ".": "blank")}
+              </p>
       </section>
 
       <section className={clsx(

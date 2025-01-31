@@ -55,7 +55,7 @@ section.game-status > p{
   margin-bottom: 1rem;
 }
 
-section.language-list{
+.language-list{
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,12 +66,30 @@ section.language-list{
   font-weight: 500;
 }
 
-.language-child{
+.chip{
   margin-top: 0.5rem;
   margin-bottom: 0;
   padding: 0.5rem;
   border-radius: 5px;
+  position: relative;
 }
+
+/* Dimmed overlay with skull on "lost" languages */
+.chip.lost::before {
+  content: "💀";
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  width: 100%;
+  font-size: 0.85rem;
+  top: 0;
+  left: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+
 
 .currentWord{
   display: flex;

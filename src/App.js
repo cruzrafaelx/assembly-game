@@ -1,37 +1,61 @@
 import './App.css';
 import clsx from 'clsx';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { languages } from './languages';
-import Language from './Language';
 
 function App() {
 
-  const [currentWord, setCurrentWord] = useState("React")
+  //State Values
+  const [currentWord, setCurrentWord] = useState("react")
   const [chosenLetter, setChosenLetter] = useState([])
   const [correctLetter, setCorrectLetter] = useState({})
 
+  //Derived Values
+  const wrongGuessCount = chosenLetter.filter(l => 
+  !currentWord.includes(l.toLowerCase())).length
+  
+
+  //Static Values
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
 
-  const languageList = languages.map(lang =>
-    <Language name={lang.name} 
-              key={lang.name}
-              backgroundColor={lang.backgroundColor}
-              color={lang.color}/>
-  )
-  
-  const wordLetters = currentWord.split("").map((letter, index) => {
-
-    const visibleLetter = Object.entries(correctLetter).some(([l, isCorrect])=>
-      letter.toLowerCase() == l && isCorrect === true
-    ) 
+  const languageList = languages.map((lang, i) => {
     
-    return <span className={visibleLetter ? "visible" : undefined}       
+    const styles = {
+      backgroundColor: `${lang.backgroundColor}`,
+      color: `${lang.color}`,
+  }
+
+    const isLanguageLost = i < wrongGuessCount
+      
+
+    return <span className={`chip ${isLanguageLost ? "lost" : ""}`}
+            style={styles}
+            name={lang.name} 
+            key={lang.name}>
+            {lang.name}
+          </span>   
+  })
+
+  console.log(languageList)
+  
+  const lettersList = currentWord.split("").map((letter, index) => {
+
+    const lowercaseLetter = letter.toLowerCase()
+    const visibleLetter = Object.entries(correctLetter).some(([l, isCorrect])=>
+       lowercaseLetter == l && isCorrect === true
+      )    
+    
+    return <span className={visibleLetter ? "visible" : undefined}    
           key={index}>{letter.toUpperCase()}</span>
   })
+
+  
 
   const alphabetList = alphabet.split("").map(letter => (
     <button 
       onClick={()=> {handleChosenLetter(letter); checkLetter(letter)}}
+
+      //clsx dynamically setting the class depending whether letter is wrong or right.
       className={clsx(
         'btn',
         correctLetter[letter] === true && 'correct-letter',
@@ -57,7 +81,7 @@ function App() {
       // return Array.from(lettersSet)
   }
 
-  //This function checks if the clicked letter is included in the current word, it consequently changes the isCorrect state as well. 
+  //This function checks if the clicked letter is included in the current word, it consequently gives the key the value of the boolean result. 
   function checkLetter(letter){
     const result = currentWord.toLowerCase().split("").includes(letter)
 
@@ -68,11 +92,11 @@ function App() {
         [letter]: result
       }
 
-  
       return updatedCorrectLetter
      
     })
   }
+  
   
   
 
@@ -93,7 +117,7 @@ function App() {
       </section>
 
       <section className='currentWord'>
-        {wordLetters}
+        {lettersList}
       </section>
 
       <section className='alphabet'>

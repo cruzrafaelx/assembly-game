@@ -2,22 +2,27 @@ import './App.css';
 import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 import { languages } from './languages';
-import { getFarewellText } from './utils';
+import { getFarewellText, getRandomWord } from './utils';
 
 function App() {
 
+
   //State Values
-  const [currentWord, setCurrentWord] = useState("react")
+  const [currentWord, setCurrentWord] = useState(()=> getRandomWord())
   const [chosenLetter, setChosenLetter] = useState([])
-  const [correctLetter, setCorrectLetter] = useState({})
- 
+  const [correctLetter, setCorrectLetter] = useState([])
+  
+  console.log(currentWord)
+
   //Derived Values
   const wrongGuessCount = chosenLetter.filter(l => 
     !currentWord.includes(l.toLowerCase())).length
   const isGameWon = currentWord.split("").every(letter => chosenLetter.includes(letter))
   const isGameLost = wrongGuessCount === languages.length
   const isGameOver = isGameWon || isGameLost
-  const previousLetter = currentWord.includes(chosenLetter[chosenLetter.length-1])
+  const previousLetter = chosenLetter[chosenLetter.length-1]
+  const isPreviousLetterCorrect = currentWord.includes(chosenLetter[chosenLetter.length-1])
+  
   const numGuessesLeft = languages.length - wrongGuessCount
   
   console.log(numGuessesLeft)
@@ -45,11 +50,11 @@ function App() {
   const lettersList = currentWord.split("").map((letter, index) => {
 
     const lowercaseLetter = letter.toLowerCase()
-    const visibleLetter = Object.entries(correctLetter).some(([l, isCorrect])=>
-       lowercaseLetter == l && isCorrect === true
-      )    
-    
-    return <span className={visibleLetter ? "visible" : undefined}    
+    const correctLetter = letter === previousLetter && isPreviousLetterCorrect
+
+    console.log(letter, previousLetter)
+
+    return <span className={correctLetter ? "visible" : undefined}    
           key={index}>{letter.toUpperCase()}</span>
   })
 
@@ -61,8 +66,9 @@ function App() {
       //clsx dynamically setting the class depending whether letter is wrong or right.
       className={clsx(
         'btn',
-        correctLetter[letter] === true && 'correct-letter',
-        correctLetter[letter] === false && 'wrong-letter'
+        correctLetter.includes(letter) === true && 'correct-letter',
+        (chosenLetter.includes(letter) &&
+        correctLetter.includes(letter) === false) && 'wrong-letter'
       )}
       key={letter}
     >{letter.toUpperCase()}</button>
@@ -84,21 +90,18 @@ function App() {
       // return Array.from(lettersSet)
   }
 
-  //This function checks if the clicked letter is included in the current word, it consequently gives the key the value of the boolean result. 
+  //This function checks if the clicked letter is included in the current word, if yes, it gets added to the correct letter state. 
   function checkLetter(letter){
-    const result = currentWord.toLowerCase().split("").includes(letter)
+    const result = currentWord.includes(letter)
 
     setCorrectLetter(prevCorrectLetter => {
-
-      const updatedCorrectLetter = {
-        ...prevCorrectLetter,
-        [letter]: result
-      }
-
-      return updatedCorrectLetter
-    }) 
+      return result ? 
+      [...prevCorrectLetter, letter] :
+      prevCorrectLetter
+    })
   }
 
+  //This function renders the game status
   function renderGameStatus(){
 
     if(isGameWon){
@@ -119,13 +122,20 @@ function App() {
       )
     }
 
-    else if(wrongGuessCount > 0 && !previousLetter){
+    else if(wrongGuessCount > 0 && !isPreviousLetterCorrect){
       return <p className='farewell'>{getFarewellText(languageList[wrongGuessCount - 1].key)}</p>
     }
 
     else{
        return null
     }
+  }
+
+  //This function restarts the game
+  function handleNewGame(){
+    setCurrentWord(getRandomWord())
+    setChosenLetter([])
+    setCorrectLetter([])
   }
   
   return (
@@ -158,12 +168,12 @@ function App() {
                aria-live='polie'
                role='status'>
                <p>
-                {currentWord.includes(previousLetter) ? 
-                 `Correct! The ${previousLetter} is in the word` :
-                 `Wrong! The ${previousLetter} is not in the word`}
+                {currentWord.includes(isPreviousLetterCorrect) ? 
+                 `Correct! The ${isPreviousLetterCorrect} is in the word` :
+                 `Wrong! The ${isPreviousLetterCorrect} is not in the word`}
                 You have {numGuessesLeft} remaining guesses.
                </p>
-               
+
                <p>
                 Current word: {currentWord.split("").map(letter => 
                 chosenLetter.includes(letter) ? letter + ".": "blank")}
@@ -177,7 +187,9 @@ function App() {
         {alphabetList}
       </section>
 
-      {(isGameLost || isGameWon) && <button className='new-game'>New Game</button>}
+      {(isGameLost || isGameWon) && 
+        <button className='new-game'
+                onClick={handleNewGame}>New Game</button>}
     </main>
   );
 }

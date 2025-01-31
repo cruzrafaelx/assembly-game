@@ -1,7 +1,8 @@
 import './App.css';
 import clsx from 'clsx';
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { languages } from './languages';
+import { getFarewellText } from './utils';
 
 function App() {
 
@@ -9,10 +10,15 @@ function App() {
   const [currentWord, setCurrentWord] = useState("react")
   const [chosenLetter, setChosenLetter] = useState([])
   const [correctLetter, setCorrectLetter] = useState({})
-
+ 
   //Derived Values
   const wrongGuessCount = chosenLetter.filter(l => 
   !currentWord.includes(l.toLowerCase())).length
+  
+  const isGameWon = currentWord.split("").every(letter => chosenLetter.includes(letter))
+  const isGameLost = wrongGuessCount === languages.length
+  const isGameOver = isGameWon || isGameLost
+  const previousLetter = currentWord.includes(chosenLetter[chosenLetter.length-1])
   
 
   //Static Values
@@ -26,17 +32,15 @@ function App() {
   }
 
     const isLanguageLost = i < wrongGuessCount
-      
+    const className = clsx("chip", isLanguageLost && "lost")
 
-    return <span className={`chip ${isLanguageLost ? "lost" : ""}`}
+    return <span className={className}
             style={styles}
             name={lang.name} 
             key={lang.name}>
             {lang.name}
           </span>   
   })
-
-  console.log(languageList)
   
   const lettersList = currentWord.split("").map((letter, index) => {
 
@@ -48,8 +52,6 @@ function App() {
     return <span className={visibleLetter ? "visible" : undefined}    
           key={index}>{letter.toUpperCase()}</span>
   })
-
-  
 
   const alphabetList = alphabet.split("").map(letter => (
     <button 
@@ -93,13 +95,38 @@ function App() {
       }
 
       return updatedCorrectLetter
-     
-    })
+    }) 
+  }
+
+  function renderGameStatus(){
+
+    if(isGameWon){
+      return(
+        <>
+          <h2>You win!</h2>
+          <p>Well Done!</p>
+        </>
+      )
+    }
+
+    else if(isGameLost){
+      return(
+        <>
+          <h2>You lost!</h2>
+          <p>Game over!</p>
+        </>
+      )
+    }
+
+    else if(wrongGuessCount > 0 && !previousLetter){
+      return <p className='farewell'>{getFarewellText(languageList[wrongGuessCount - 1].key)}</p>
+    }
+
+    else{
+       return null
+    }
   }
   
-  
-  
-
   return (
     <main>
       <header>
@@ -107,9 +134,12 @@ function App() {
         <p>Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>
       </header>
 
-      <section className='game-status'>
-        <h2>You win!</h2>
-        <p>Well done!</p>
+      <section className={clsx(
+        "game-status",
+        isGameWon && "game-won",
+        isGameLost && "game-lost"
+      )}>
+        {renderGameStatus()}
       </section>
 
       <section className='language-list'>
@@ -120,12 +150,14 @@ function App() {
         {lettersList}
       </section>
 
-      <section className='alphabet'>
+      <section className={clsx(
+        "alphabet",
+        isGameOver && "disabled"
+      )} >
         {alphabetList}
       </section>
 
-
-      <button className='new-game'>New Game</button>
+      {(isGameLost || isGameWon) && <button className='new-game'>New Game</button>}
     </main>
   );
 }

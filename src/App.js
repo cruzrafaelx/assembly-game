@@ -3,6 +3,8 @@ import clsx from 'clsx';
 import { useState, useEffect } from 'react';
 import { languages } from './languages';
 import { getFarewellText, getRandomWord } from './utils';
+import { useWindowSize } from 'react-use'
+import Confetti from "react-confetti";
 
 function App() {
 
@@ -22,12 +24,12 @@ function App() {
   const isGameOver = isGameWon || isGameLost
   const previousLetter = chosenLetter[chosenLetter.length-1]
   const isPreviousLetterCorrect = currentWord.includes(chosenLetter[chosenLetter.length-1])
-  
   const numGuessesLeft = languages.length - wrongGuessCount
   
-  console.log(numGuessesLeft)
+
   //Static Values
   const alphabet = "abcdefghijklmnopqrstuvwxyz"
+  const {height, width} = useWindowSize()
 
   const languageList = languages.map((lang, i) => {
     
@@ -46,17 +48,25 @@ function App() {
             {lang.name}
           </span>   
   })
+
   
   const lettersList = currentWord.split("").map((letter, index) => {
 
     const lowercaseLetter = letter.toLowerCase()
-    const correctLetter = letter === previousLetter && isPreviousLetterCorrect
+    const rightLetter = correctLetter.includes(letter)
+      
+    if(isGameLost){
+      return <span className={correctLetter.includes(letter) ? "visible" : "unguessed"}    
+            key={index}>{letter.toUpperCase()}</span>    
+    }
 
-    console.log(letter, previousLetter)
-
-    return <span className={correctLetter ? "visible" : undefined}    
-          key={index}>{letter.toUpperCase()}</span>
+    else{
+      return <span className={rightLetter ? "visible" : undefined}    
+             key={index}>{letter.toUpperCase()}</span>
+    }  
   })
+
+
 
   const alphabetList = alphabet.split("").map(letter => (
     <button 
@@ -140,6 +150,7 @@ function App() {
   
   return (
     <main>
+      {isGameWon && <Confetti width={width} height={height}/>}
       <header>
         <h2>Assembly: Endgame</h2>
         <p>Guess the word in under 8 attempts to keep the programming world safe from Assembly!</p>

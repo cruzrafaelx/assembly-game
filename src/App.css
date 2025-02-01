@@ -143,6 +143,10 @@ section.game-status > p{
   color: #FFFFFF;
 }
 
+.currentWord > span.unguessed{
+  color: red;
+}
+
 .alphabet{
   display: flex;
   flex-wrap: wrap;
@@ -174,6 +178,7 @@ section.game-status > p{
   border-radius: 5px;
   border: none;
   font-size: 1.3rem;
+  cursor: pointer;
 }
 
 .alphabet > .correct-letter{

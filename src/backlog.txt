@@ -1,0 +1,2 @@
+
+    //All the unguessed letters need to be displayed as red when the game is over. 
